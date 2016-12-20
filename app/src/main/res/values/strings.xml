@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">PopFilms</string>
+
+
+    // Preference Strings
+    <string name="Pref_sort_key">sort_setting</string>
+
+    <string name="Pref_sort_title">Sort Movies By:</string>
+
+    <string name="Pref_entry_popular">Popularity</string>
+    <string name="Pref_entry_top_rated">Highest Rating</string>
+
+    <string name="Pref_values_popular">popular</string>
+    <string name="Pref_values_top_rated">top_rated</string>
+
+
+</resources>
