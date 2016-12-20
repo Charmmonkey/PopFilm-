@@ -10,8 +10,14 @@ import android.preference.PreferenceManager;
 
 public class Utility {
 
+
     public static String getSortingPreference(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return sharedPreferences.getString(SortActivity.KEY_PREF_SORT,"");
+        return sharedPreferences.getString(getSortPreferenceKey(context),context.getString(R.string.Pref_values_popular));
     }
+
+    public static String getSortPreferenceKey(Context context){
+        return context.getString(R.string.Pref_sort_key);
+    }
+
 }

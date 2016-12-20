@@ -1,5 +1,6 @@
 package com.example.android.popfilms;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -14,7 +15,6 @@ import android.util.Log;
 
 public class SortActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String LOG_TAG = SortActivity.class.getSimpleName();
-    public static final String KEY_PREF_SORT = "sort_setting";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,7 @@ public class SortActivity extends PreferenceActivity implements SharedPreference
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        if(key.equals(KEY_PREF_SORT)){
+        if(key.equals(Utility.getSortPreferenceKey(this))){
             Preference sortPref = findPreference(key);
             ListPreference listPref = (ListPreference) sortPref;
             sortPref.setSummary(listPref.getEntry());
