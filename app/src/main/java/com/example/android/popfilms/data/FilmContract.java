@@ -56,6 +56,7 @@ public class FilmContract {
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_ORIGINAL_TITLE = "original_title";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
+        public static final String COLUMN_SPECIFIC_ID = "id";
 
         // Uri types (for getType in ContentProvider MIME type matcher)
         // ie. vnd.android.cursor.dir/com.example.android.popfilms/movie for .dir type

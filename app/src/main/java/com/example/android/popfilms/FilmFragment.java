@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.Volley;
 import com.example.android.popfilms.data.FilmContract;
 import com.example.android.popfilms.data.FilmDBHelper;
 
@@ -81,8 +82,18 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
             FilmContract.FilmEntry.COLUMN_POSTER_PATH,
             FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
             FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE,
-            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH
+            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH,
+            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID
     };
+
+    static final String[] ENTRY_COLUMN = { FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
+            FilmContract.FilmEntry.COLUMN_OVERVIEW,
+            FilmContract.FilmEntry.COLUMN_POSTER_PATH,
+            FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
+            FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE,
+            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH,
+            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID};
+
     // These IDs are for matching to the cursor ID when obtaining values of the column
     static final int COL_FILM_ID = 0;
     static final int COL_ORIGINAL_TITLE_ID = 1;
@@ -91,6 +102,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     static final int COL_RELEASE_DATE_ID = 4;
     static final int COL_VOTE_AVERAGE_ID = 5;
     static final int COL_BACKDROP_PATH_ID = 6;
+    static final int COL_SPECIFIC_ID = 7;
 
     public FilmFragment() {
         // Required empty public constructor
@@ -101,8 +113,10 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "onStart");
-        FetchMovieTask fetchMovieTask = new FetchMovieTask(getContext());
-        fetchMovieTask.execute();
+        VolleyFetcher.volleyFetcher("https://api.themoviedb.org/3/movie/popular?api_key=***REMOVED***&language=en-US",ENTRY_COLUMN,getContext());
+
+//        FetchMovieTask fetchMovieTask = new FetchMovieTask(getContext());
+//        fetchMovieTask.execute();
 
 
 

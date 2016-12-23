@@ -22,7 +22,7 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     }
 
     // Name and version of database
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 5;
     static final String DATABASE_NAME = "film.db";
 
 
@@ -37,7 +37,8 @@ public class FilmDBHelper extends SQLiteOpenHelper {
                         + FilmContract.FilmEntry.COLUMN_OVERVIEW + " TEXT NOT NULL,"
                         + FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL,"
                         + FilmContract.FilmEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, "
-                        + FilmContract.FilmEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL"
+                        + FilmContract.FilmEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL, "
+                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " REAL NOT NULL"
                         + ");";
 
         db.execSQL(SQL_CREATE_FILM_TABLE);
