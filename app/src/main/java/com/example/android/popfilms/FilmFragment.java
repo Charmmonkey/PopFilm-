@@ -3,7 +3,6 @@ package com.example.android.popfilms;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,20 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.toolbox.Volley;
 import com.example.android.popfilms.data.FilmContract;
-import com.example.android.popfilms.data.FilmDBHelper;
 
-import java.util.ArrayList;
-
-import static com.example.android.popfilms.R.id.container;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +29,10 @@ import static com.example.android.popfilms.R.id.container;
 public class FilmFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     private static PosterAdapter mPosterAdapter;
     private static final int FILM_LOADER = 0;
+    private String LOG_TAG = getClass().getSimpleName();
+    public FilmFragment() {
+        // Required empty public constructor
+    }
 
 
     @Override
@@ -52,7 +46,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        CursorLoader loader = new CursorLoader(getContext(),FilmContract.FilmEntry.CONTENT_URI, FILM_COLUMN, null, null, null);
+        CursorLoader loader = new CursorLoader(getContext(),FilmContract.FilmEntry.CONTENT_URI, Utility.FILM_COLUMN, null, null, null);
         return loader;
     }
 
@@ -69,75 +63,11 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
 
-
-    // Logging tag
-    private String LOG_TAG = getClass().getSimpleName();
-//    private static ArrayList<String> posterUriString = new ArrayList<String>();
-
-    // String array for projection, ordered intentionally so they will return in this order
-    static final String[] FILM_COLUMN = {
-            FilmContract.FilmEntry.TABLE_NAME + "." + FilmContract.FilmEntry._ID,
-            FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
-            FilmContract.FilmEntry.COLUMN_OVERVIEW,
-            FilmContract.FilmEntry.COLUMN_POSTER_PATH,
-            FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
-            FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE,
-            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH,
-            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID
-    };
-
-    static final String[] ENTRY_COLUMN = { FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
-            FilmContract.FilmEntry.COLUMN_OVERVIEW,
-            FilmContract.FilmEntry.COLUMN_POSTER_PATH,
-            FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
-            FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE,
-            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH,
-            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID};
-
-    // These IDs are for matching to the cursor ID when obtaining values of the column
-    static final int COL_FILM_ID = 0;
-    static final int COL_ORIGINAL_TITLE_ID = 1;
-    static final int COL_OVERVIEW_ID = 2;
-    static final int COL_POSTER_PATH_ID = 3;
-    static final int COL_RELEASE_DATE_ID = 4;
-    static final int COL_VOTE_AVERAGE_ID = 5;
-    static final int COL_BACKDROP_PATH_ID = 6;
-    static final int COL_SPECIFIC_ID = 7;
-
-    public FilmFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
     public void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "onStart");
-        VolleyFetcher.volleyFetcher("https://api.themoviedb.org/3/movie/popular?api_key=c5b5c70b6c7ae8a89e1f6cac192fcda9&language=en-US",ENTRY_COLUMN,getContext());
-
-//        FetchMovieTask fetchMovieTask = new FetchMovieTask(getContext());
-//        fetchMovieTask.execute();
-
-
-
-        // Query the database using ContentResolver and return a cursor
-//        Cursor queryCursor = getContext().getContentResolver().query(FilmContract.FilmEntry.CONTENT_URI, FILM_COLUMN, null, null, null);
-
-        // Move the cursor to row 1 ----IMPORTANT---- default cursor position is -1,  will cause error
-//        if (queryCursor.moveToFirst()) {
-//            posterUriString.add(queryCursor.getString(COL_POSTER_PATH_ID));
-//            Log.v(LOG_TAG + " if statement", queryCursor.getString(COL_POSTER_PATH_ID));
-//            while (queryCursor.moveToNext()) {
-//                posterUriString.add(queryCursor.getString(COL_POSTER_PATH_ID));
-//                Log.v(LOG_TAG + "while loop", queryCursor.getString(COL_POSTER_PATH_ID));
-//            }
-//
-//        } else {
-//            Log.v(LOG_TAG, "Cursor was not moved to first row");
-//        }
-
-//        queryCursor.close();
-
+        updateFetcher();
     }
 
 
@@ -163,10 +93,11 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
                 // References the adapter, in this case custom ArrayAdapter which contains Strings. Need to
                 // use CursorAdapter.
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                String itemMovieTitle = cursor.getString(COL_ORIGINAL_TITLE_ID);
-                Intent detailedFilm = new Intent(getActivity(),DetailedFilmView.class);
+                String itemMovieWithID = cursor.getString(Utility.COL_SPECIFIC_ID + 1);
+                Intent detailedFilm = new Intent(getContext(),DetailedFilmView.class);
                 // Pass the movie title Uri in the intent
-                detailedFilm.setData(FilmContract.FilmEntry.buildMovieUriWithTitle(itemMovieTitle));
+                Log.v(LOG_TAG,FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID).toString());
+                detailedFilm.setData(FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID));
                 startActivity(detailedFilm);
             }
         });
@@ -177,6 +108,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
+        updateFetcher();
         CharSequence toastText = Utility.getSortingPreference(getContext());
         Toast.makeText(getContext(), "Sorted By: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -197,6 +129,11 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
         default:
             return super.onOptionsItemSelected(item);}
     }
+
+    private void updateFetcher(){
+        VolleyFetcher.volleyFetcher(Utility.buildFilmListUri(getContext()).toString(),Utility.ENTRY_COLUMN,getContext());
+    }
+
 }
 
 

@@ -12,6 +12,7 @@ import android.os.CancellationSignal;
 import android.support.annotation.Nullable;
 
 import com.example.android.popfilms.FilmFragment;
+import com.example.android.popfilms.Utility;
 
 import static android.R.attr.id;
 
@@ -23,6 +24,8 @@ public class FilmProvider extends ContentProvider {
     // IDs for UriMatcher
     static final int MOVIE = 100;
     static final int MOVIE_WITH_TITLE = 101;
+    static final int MOVIE_REVIEW = 102;
+    static final int MOVIE_TRAILER = 103;
 
     // Static variable
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -59,7 +62,7 @@ public class FilmProvider extends ContentProvider {
         switch (match) {
             case MOVIE: {
                 queryCursor = filmDB.query(
-                        FilmContract.FilmEntry.TABLE_NAME,
+                        FilmContract.FilmEntry.FILM_TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -73,17 +76,39 @@ public class FilmProvider extends ContentProvider {
             //
             case MOVIE_WITH_TITLE: {
                 queryCursor = filmDB.query(
-                        FilmContract.FilmEntry.TABLE_NAME,
+                        FilmContract.FilmEntry.FILM_TABLE_NAME,
                         projection,
-                        "original_title = ?",
-                        new String[]{FilmContract.FilmEntry.getMovieTitleFromUri(uri)},
+                        "id = ?",
+                        new String[]{FilmContract.FilmEntry.getMovieIdFromUri(uri)},
                         null,
                         null,
                         sortOrder
                 );
                 break;
             }
-
+            // Query for review table
+            case MOVIE_REVIEW:
+                queryCursor = filmDB.query(
+                        FilmContract.FilmEntry.REVIEW_TABLE_NAME,
+                        projection,
+                        "id = ?",
+                        new String[]{FilmContract.FilmEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case MOVIE_TRAILER:
+                queryCursor = filmDB.query(
+                        FilmContract.FilmEntry.TRAILER_TABLE_NAME,
+                        projection,
+                        "id = ?",
+                        new String[]{FilmContract.FilmEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
@@ -102,7 +127,23 @@ public class FilmProvider extends ContentProvider {
         // _id of the inserted row. If it exists, create uri with _id, else throw SQLException
         switch (match) {
             case MOVIE:
-                long _id = db.insert(FilmContract.FilmEntry.TABLE_NAME, null, values);
+                long _id = db.insert(FilmContract.FilmEntry.FILM_TABLE_NAME, null, values);
+                if (_id > 0) {
+                    insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
+                } else {
+                    throw new SQLException("Error inserting Uri to database: " + uri);
+                }
+                break;
+            case MOVIE_REVIEW:
+                _id = db.insert(FilmContract.FilmEntry.REVIEW_TABLE_NAME, null, values);
+                if (_id > 0) {
+                    insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
+                } else {
+                    throw new SQLException("Error inserting Uri to database: " + uri);
+                }
+                break;
+            case MOVIE_TRAILER:
+                _id = db.insert(FilmContract.FilmEntry.TRAILER_TABLE_NAME, null, values);
                 if (_id > 0) {
                     insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
                 } else {
@@ -131,15 +172,49 @@ public class FilmProvider extends ContentProvider {
                 try {
                     // Iterate each value of ContentValues array
                     for (ContentValues singleValue : values) {
-                        long _id = db.insert(FilmContract.FilmEntry.TABLE_NAME, null, singleValue);
-
+                        long _id = db.insert(FilmContract.FilmEntry.FILM_TABLE_NAME, null, singleValue);
                         // +1 to count only if insert is successful
                         if (_id != -1) {
                             count++;
                         }
                     }
                     db.setTransactionSuccessful();
-
+                    // Catch block already exists inside insert method
+                } finally {
+                    db.endTransaction();
+                }
+                return count;
+            case MOVIE_REVIEW:
+                db.beginTransaction();
+                count = 0;
+                try {
+                    // Iterate each value of ContentValues array
+                    for (ContentValues singleValue : values) {
+                        long _id = db.insert(FilmContract.FilmEntry.REVIEW_TABLE_NAME, null, singleValue);
+                        // +1 to count only if insert is successful
+                        if (_id != -1) {
+                            count++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                    // Catch block already exists inside insert method
+                } finally {
+                    db.endTransaction();
+                }
+                return count;
+            case MOVIE_TRAILER:
+                db.beginTransaction();
+                count = 0;
+                try {
+                    // Iterate each value of ContentValues array
+                    for (ContentValues singleValue : values) {
+                        long _id = db.insert(FilmContract.FilmEntry.TRAILER_TABLE_NAME, null, singleValue);
+                        // +1 to count only if insert is successful
+                        if (_id != -1) {
+                            count++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
                     // Catch block already exists inside insert method
                 } finally {
                     db.endTransaction();
@@ -152,7 +227,18 @@ public class FilmProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mOpenDBHelper.getWritableDatabase();
+        int updateRow;
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case MOVIE:
+                updateRow = db.update(FilmContract.FilmEntry.FILM_TABLE_NAME, values, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
+        }
+        return updateRow;
     }
 
     @Override
@@ -165,7 +251,7 @@ public class FilmProvider extends ContentProvider {
         // _id of the inserted row. If it exists, create uri with _id, else throw SQLException
         switch (match) {
             case MOVIE:
-                deletedRow = db.delete(FilmContract.FilmEntry.TABLE_NAME, selection, selectionArgs);
+                deletedRow = db.delete(FilmContract.FilmEntry.FILM_TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
@@ -186,7 +272,10 @@ public class FilmProvider extends ContentProvider {
 
         // addURI(String authority, String path, int code)
         uriMatcher.addURI(authority, FilmContract.PATH_MOVIE, MOVIE);
-        uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/*", MOVIE_WITH_TITLE);
+        uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#", MOVIE_WITH_TITLE);
+        uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#/" + Utility.PATH_REVIEW, MOVIE_REVIEW);
+        uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#/" + Utility.PATH_TRAILER, MOVIE_TRAILER);
+
 
         return uriMatcher;
     }

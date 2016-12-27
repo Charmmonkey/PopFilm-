@@ -5,7 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import static com.example.android.popfilms.data.FilmContract.FilmEntry.TABLE_NAME;
+import static com.example.android.popfilms.data.FilmContract.FilmEntry.FILM_TABLE_NAME;
+import static com.example.android.popfilms.data.FilmContract.FilmEntry.REVIEW_TABLE_NAME;
+import static com.example.android.popfilms.data.FilmContract.FilmEntry.TRAILER_TABLE_NAME;
 
 /**
  * Created by jerye on 12/4/2016.
@@ -22,15 +24,16 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     }
 
     // Name and version of database
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     static final String DATABASE_NAME = "film.db";
 
 
     // This is where the database table is created
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // film Table containing 20 films' general information
         final String SQL_CREATE_FILM_TABLE =
-                "CREATE TABLE " + TABLE_NAME + "("
+                "CREATE TABLE " + FILM_TABLE_NAME + "("
                         + FilmContract.FilmEntry._ID + " INT AUTO_INCREMENT,"
                         + FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE + " TEXT NOT NULL,"
                         + FilmContract.FilmEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL,"
@@ -40,8 +43,26 @@ public class FilmDBHelper extends SQLiteOpenHelper {
                         + FilmContract.FilmEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL, "
                         + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " REAL NOT NULL"
                         + ");";
-
         db.execSQL(SQL_CREATE_FILM_TABLE);
+
+        // Table for review of each film
+        final String SQL_CREATE_REVIEW_TABLE =
+                "CREATE TABLE " + REVIEW_TABLE_NAME + "("
+                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_REVIEW_AUTHOR + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_REVIEW_CONTENT + " TEXT NOT NULL"
+                        + ");";
+        db.execSQL(SQL_CREATE_REVIEW_TABLE);
+
+        // Table for trailer of each film
+        final String SQL_CREATE_TRAILER_TABLE =
+                "CREATE TABLE " + TRAILER_TABLE_NAME + "("
+                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_TRAILER_NAME + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_TRAILER_KEY + " TEXT NOT NULL"
+                        + ");";
+        db.execSQL(SQL_CREATE_TRAILER_TABLE);
+
     }
 
     // Update when database version changes
@@ -57,7 +78,7 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     }
 
     public void dropTable(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.FILM_TABLE_NAME);
         onCreate(db);
     }
 }
