@@ -2,6 +2,8 @@ package com.example.android.popfilms;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
+import android.net.Uri;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -22,37 +24,31 @@ import java.util.Vector;
  * Created by jerye on 12/21/2016.
  */
 
-
 // VolleyFetcher is a modification of the original FetchMovieTask. It eliminates the use of AsyncTask and simplifies the code.
-// It is also revised to handle different API calls to TMDB to include review and trailers.
+// It is also revised to handle different API calls to TMDB and inserts in to corresponding data tables in our DB.
 public class VolleyFetcher {
     private static final String LOG_TAG = VolleyFetcher.class.getSimpleName();
 
-
     // Google Volley handles HTTP requests and parses JSONObject for you. Wrap this whole thing with a method.
-    public static void volleyFetcher(String urlString, final String[] filmColumn, final Context context) {
+    public static void volleyFetcher(final String uriString, final String[] filmColumn, final Context context) {
 
         // Log tag
         final String LOG_TAG = VolleyFetcher.class.getSimpleName();
-
+        Log.v(LOG_TAG,"uriString: " + uriString);
         // Create the request
         JsonObjectRequest jsonRequest = new JsonObjectRequest(
                 Request.Method.GET,
-                urlString,
+                uriString,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.v(LOG_TAG, response.toString());
-                        try{
+                        try {
                             JSONArray jsonArray = response.getJSONArray("results");
-                            putJsonIntoSQLite(jsonArray,filmColumn,context);
-                        }catch (JSONException e){
+                            putJsonIntoSQLite(uriString, jsonArray, filmColumn, context);
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -65,21 +61,36 @@ public class VolleyFetcher {
         );
         // Add new request to the queue
         Volley.newRequestQueue(context).add(jsonRequest);
-        Log.v(LOG_TAG,"VolleyFetcher Worked!");
+        Log.v(LOG_TAG, "VolleyFetcher Worked!");
 
     }
 
     /**
-     * Method that handles JSONArray and JSONObject output and input into SQLiteDB
+     * Method that handles JSONArray and JSONObject output and insert into SQLiteDB
      *
-     * @param jsonArray   Output from volleyFetcher
+     * @param uriString   String input of the uri call to TMDB API
+     * @param jsonArray   Output from volleyFetcher. Contains the array of movies, each with a list of requested data.
      * @param jsonEntries String array of the JSONObject names to be read for the value, also doubles as the key in the key-value pair
+     * @param context     context
      */
-    public static void putJsonIntoSQLite(JSONArray jsonArray, String[] jsonEntries, Context context) {
+    public static void putJsonIntoSQLite(String uriString, JSONArray jsonArray, String[] jsonEntries, Context context) {
         String entryValue;
+
+        Uri uri = Uri.parse(uriString);
+        String movieIdString = uri.getPathSegments().get(2);
+
+        // Try catch block to create movieId if existed in API call
+        int movieId = 0;
+        try{
+            movieId = Integer.valueOf(movieIdString);
+        }catch(NumberFormatException e){
+            Log.v(LOG_TAG, "Failed to retrieve value of string");
+        }
 
         Vector<ContentValues> cvVector = new Vector<ContentValues>();
         try {
+
+            // Double loop construction iterates through all the entries of all the movies to create KV pair
             for (int i = 0; i < jsonArray.length(); i++) {
                 ContentValues filmValues = new ContentValues();
 
@@ -92,29 +103,55 @@ public class VolleyFetcher {
                     entryValue = eachMovieObject.getString(jsonEntries[j]);
                     // Put key-value pair into filmValues
                     filmValues.put(jsonEntries[j], entryValue);
-                    Log.v(LOG_TAG, "entryValue: " + entryValue);
                 }
-                Log.v(LOG_TAG,"filmValue Size: " + filmValues.size());
-                cvVector.add(filmValues);
-                Log.v(LOG_TAG,"cvVector size: " + cvVector.size());
-                Log.v(LOG_TAG,cvVector.toString());
 
+                // Add additional KV pair of movie id if fetching for Review or Trailers
+                if(movieId != 0){
+                    filmValues.put("id", movieId);
+                }
+                cvVector.add(filmValues);
             }
-            if (cvVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cvVector.size()];
-                cvVector.toArray(cvArray);
-                Log.v(LOG_TAG, "cvArray length: " + cvArray.length);
-                context.getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI, null, null);
-                context.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
-            }else{
-                Log.e(LOG_TAG,"cvVector.size = 0");
+
+            ContentValues[] cvArray = new ContentValues[cvVector.size()];
+            cvVector.toArray(cvArray);
+
+            // Types of Uri
+            // https://api.themoviedb.org/3/movie/346672/reviews?
+            // https://api.themoviedb.org/3/movie/popular?
+            // https://api.themoviedb.org/3/movie/top_rated?
+            // https://api.themoviedb.org/3/movie/346672/videos?
+
+            // Uri pattern: <scheme>://<authority><absolute path>?<query>#<fragment>
+            // Switch case handles different API calls and inserts into appropriate DB
+
+            switch (uri.getLastPathSegment()) {
+                case "popular":
+                    // Delete db entries before inserting
+                    context.getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI, null, null);
+                    context.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
+                    break;
+                case "top_rated":
+                    // Delete db entries before inserting
+                    context.getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI, null, null);
+                    context.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
+                    break;
+                case Utility.PATH_REVIEW:
+                    // Insert into Review data table. Uri will be handled by ContentProvider's UriMatcher
+                    context.getContentResolver().bulkInsert(FilmContract.FilmEntry.buildReviewContentUriWithId(movieIdString), cvArray);
+                    break;
+                case Utility.PATH_TRAILER:
+                    // Insert into Trailer data table. Uri will be handled by ContentProvider's UriMatcher
+                    context.getContentResolver().bulkInsert(FilmContract.FilmEntry.buildTrailerContentUriWithId(movieIdString), cvArray);
+                    break;
+                default:
             }
+
+
 
         } catch (JSONException e) {
             e.printStackTrace();
 
         }
     }
-
 
 }

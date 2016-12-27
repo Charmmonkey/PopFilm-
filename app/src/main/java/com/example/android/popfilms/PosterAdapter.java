@@ -32,40 +32,14 @@ public class PosterAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.grid_item,parent,false);
-        Log.v(LOG_TAG, "New view created");
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        Log.v(LOG_TAG, "View has been bound");
-        String posterUri = cursor.getString(FilmFragment.COL_POSTER_PATH_ID);
+        String posterUri = cursor.getString(Utility.COL_POSTER_PATH_ID + 1);
         ImageView posterImage = (ImageView) view.findViewById(R.id.poster);
-        Picasso.with(context).load(FilmContract.buildPosterUri(posterUri)).into(posterImage);
+        Picasso.with(context).load(Utility.buildPosterUri(posterUri)).into(posterImage);
     }
 
-    //    public PosterAdapter(Context context, List<String> posters) {
-//        super(context, 0, posters);
-//    }
-//
-//
-////    @NonNull
-////    @Override
-////    public View getView(int position, View convertView, ViewGroup parent) {
-////        // Grabs the item (poster's string Uri) at the given position
-////        String posterItem = getItem(position);
-////
-////        // Inflate item view if it doesn't exist
-////        View currentView = convertView;
-////        if (currentView == null) {
-////            currentView = LayoutInflater.from(getContext()).inflate(
-////                    R.layout.grid_item, parent, false);
-////            Log.v(LOG_TAG, "successfully created grid item");
-////        }
-////        ImageView posterImage = (ImageView) currentView.findViewById(R.id.poster);
-//////        Log.v(LOG_TAG,FilmContract.buildPosterUri(posterItem).toString());
-////        Picasso.with(getContext()).load(FilmContract.buildPosterUri(posterItem)).into(posterImage);
-////
-////        return currentView;
-////    }
 }

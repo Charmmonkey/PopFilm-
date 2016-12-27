@@ -25,8 +25,9 @@ public class SortActivity extends PreferenceActivity implements SharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+    Log.v(LOG_TAG, " Sort Activity triggered");
         if(key.equals(Utility.getSortPreferenceKey(this))){
+            Log.v(LOG_TAG,Utility.getSortPreferenceKey(this).toString());
             Preference sortPref = findPreference(key);
             ListPreference listPref = (ListPreference) sortPref;
             sortPref.setSummary(listPref.getEntry());

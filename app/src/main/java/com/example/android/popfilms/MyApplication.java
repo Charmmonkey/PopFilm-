@@ -1,6 +1,7 @@
 package com.example.android.popfilms;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.facebook.stetho.Stetho;
 
@@ -9,6 +10,7 @@ import com.facebook.stetho.Stetho;
  */
 
 public class MyApplication extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -33,4 +35,5 @@ public class MyApplication extends Application {
         // Initialize Stetho with the Initializer
         Stetho.initialize(initializer);
     }
+
 }
