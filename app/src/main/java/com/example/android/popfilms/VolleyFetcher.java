@@ -32,9 +32,8 @@ public class VolleyFetcher {
     // Google Volley handles HTTP requests and parses JSONObject for you. Wrap this whole thing with a method.
     public static void volleyFetcher(final String uriString, final String[] filmColumn, final Context context) {
 
-        // Log tag
         final String LOG_TAG = VolleyFetcher.class.getSimpleName();
-        Log.v(LOG_TAG,"uriString: " + uriString);
+
         // Create the request
         JsonObjectRequest jsonRequest = new JsonObjectRequest(
                 Request.Method.GET,
@@ -45,10 +44,16 @@ public class VolleyFetcher {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray jsonArray = response.getJSONArray("results");
-                            putJsonIntoSQLite(uriString, jsonArray, filmColumn, context);
+
+                            // Prevents insertion if the film has no reviews.
+                            // IMPORTANT:  This prevents an infinite re-query loop.
+                            if (jsonArray.length() != 0) {
+                                putJsonIntoSQLite(uriString, jsonArray, filmColumn, context);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
                     }
                 },
                 new Response.ErrorListener() {
@@ -61,8 +66,6 @@ public class VolleyFetcher {
         );
         // Add new request to the queue
         Volley.newRequestQueue(context).add(jsonRequest);
-        Log.v(LOG_TAG, "VolleyFetcher Worked!");
-
     }
 
     /**
@@ -79,12 +82,12 @@ public class VolleyFetcher {
         Uri uri = Uri.parse(uriString);
         String movieIdString = uri.getPathSegments().get(2);
 
-        // Try catch block to create movieId if existed in API call
+        // Try catch block to create movieId if existed in API call.
+        // Exception being caught means it's not a network call for review or trailer, but a general 20 movie list call.
         int movieId = 0;
-        try{
+        try {
             movieId = Integer.valueOf(movieIdString);
-        }catch(NumberFormatException e){
-            Log.v(LOG_TAG, "Failed to retrieve value of string");
+        } catch (NumberFormatException e) {
         }
 
         Vector<ContentValues> cvVector = new Vector<ContentValues>();
@@ -106,7 +109,7 @@ public class VolleyFetcher {
                 }
 
                 // Add additional KV pair of movie id if fetching for Review or Trailers
-                if(movieId != 0){
+                if (movieId != 0) {
                     filmValues.put("id", movieId);
                 }
                 cvVector.add(filmValues);
@@ -145,8 +148,6 @@ public class VolleyFetcher {
                     break;
                 default:
             }
-
-
 
         } catch (JSONException e) {
             e.printStackTrace();

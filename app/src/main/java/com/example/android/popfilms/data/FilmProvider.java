@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.CancellationSignal;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.android.popfilms.FilmFragment;
 import com.example.android.popfilms.Utility;
@@ -88,6 +89,7 @@ public class FilmProvider extends ContentProvider {
             }
             // Query for review table
             case MOVIE_REVIEW:
+                Log.v("FilmProvider", "movie review query");
                 queryCursor = filmDB.query(
                         FilmContract.FilmEntry.REVIEW_TABLE_NAME,
                         projection,
@@ -99,6 +101,7 @@ public class FilmProvider extends ContentProvider {
                 );
                 break;
             case MOVIE_TRAILER:
+                Log.v("FilmProvider", "movie trailer query");
                 queryCursor = filmDB.query(
                         FilmContract.FilmEntry.TRAILER_TABLE_NAME,
                         projection,
@@ -187,6 +190,7 @@ public class FilmProvider extends ContentProvider {
             case MOVIE_REVIEW:
                 db.beginTransaction();
                 count = 0;
+                Log.v("FilmProvider", "bulk insert");
                 try {
                     // Iterate each value of ContentValues array
                     for (ContentValues singleValue : values) {
@@ -199,6 +203,7 @@ public class FilmProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                     // Catch block already exists inside insert method
                 } finally {
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.endTransaction();
                 }
                 return count;
@@ -217,12 +222,14 @@ public class FilmProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                     // Catch block already exists inside insert method
                 } finally {
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.endTransaction();
                 }
                 return count;
             default:
                 return super.bulkInsert(uri, values);
         }
+
     }
 
     @Override

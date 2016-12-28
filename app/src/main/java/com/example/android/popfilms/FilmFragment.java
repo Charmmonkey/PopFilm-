@@ -108,6 +108,8 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
+        Log.v(LOG_TAG, " onResume ");
+
         updateFetcher();
         CharSequence toastText = Utility.getSortingPreference(getContext());
         Toast.makeText(getContext(), "Sorted By: " + toastText, Toast.LENGTH_SHORT).show();
