@@ -15,6 +15,7 @@ import android.util.Log;
 import com.example.android.popfilms.FilmFragment;
 import com.example.android.popfilms.Utility;
 
+import static android.R.attr.author;
 import static android.R.attr.id;
 
 /**
@@ -27,6 +28,8 @@ public class FilmProvider extends ContentProvider {
     static final int MOVIE_WITH_TITLE = 101;
     static final int MOVIE_REVIEW = 102;
     static final int MOVIE_TRAILER = 103;
+    static final int FAVORITES = 104;
+    static final int FAVORITES_WITH_TITLE = 105;
 
     // Static variable
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -112,6 +115,30 @@ public class FilmProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+            case FAVORITES: {
+                queryCursor = filmDB.query(
+                        FilmContract.FilmEntry.FAVORITES_TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case FAVORITES_WITH_TITLE: {
+                queryCursor = filmDB.query(
+                        FilmContract.FilmEntry.FAVORITES_TABLE_NAME,
+                        projection,
+                        "id = ?",
+                        new String[]{FilmContract.FilmEntry.getMovieIdFromUri(uri)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
@@ -147,6 +174,14 @@ public class FilmProvider extends ContentProvider {
                 break;
             case MOVIE_TRAILER:
                 _id = db.insert(FilmContract.FilmEntry.TRAILER_TABLE_NAME, null, values);
+                if (_id > 0) {
+                    insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
+                } else {
+                    throw new SQLException("Error inserting Uri to database: " + uri);
+                }
+                break;
+            case FAVORITES:
+                _id = db.insert(FilmContract.FilmEntry.FAVORITES_TABLE_NAME, null, values);
                 if (_id > 0) {
                     insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
                 } else {
@@ -245,6 +280,7 @@ public class FilmProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
+
         return updateRow;
     }
 
@@ -260,10 +296,17 @@ public class FilmProvider extends ContentProvider {
             case MOVIE:
                 deletedRow = db.delete(FilmContract.FilmEntry.FILM_TABLE_NAME, selection, selectionArgs);
                 break;
+            case FAVORITES:
+                deletedRow = db.delete(FilmContract.FilmEntry.FAVORITES_TABLE_NAME, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
 
         }
+
+
+
+
         if (deletedRow != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
@@ -282,6 +325,8 @@ public class FilmProvider extends ContentProvider {
         uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#", MOVIE_WITH_TITLE);
         uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#/" + Utility.PATH_REVIEW, MOVIE_REVIEW);
         uriMatcher.addURI(authority, FilmContract.PATH_MOVIE + "/#/" + Utility.PATH_TRAILER, MOVIE_TRAILER);
+        uriMatcher.addURI(authority, FilmContract.PATH_FAVORITES, FAVORITES);
+        uriMatcher.addURI(authority, FilmContract.PATH_FAVORITES + "/#", FAVORITES_WITH_TITLE);
 
 
         return uriMatcher;

@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import static com.example.android.popfilms.data.FilmContract.FilmEntry.FAVORITES_TABLE_NAME;
 import static com.example.android.popfilms.data.FilmContract.FilmEntry.FILM_TABLE_NAME;
 import static com.example.android.popfilms.data.FilmContract.FilmEntry.REVIEW_TABLE_NAME;
 import static com.example.android.popfilms.data.FilmContract.FilmEntry.TRAILER_TABLE_NAME;
@@ -24,7 +25,7 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     }
 
     // Name and version of database
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 10;
     static final String DATABASE_NAME = "film.db";
 
 
@@ -41,7 +42,8 @@ public class FilmDBHelper extends SQLiteOpenHelper {
                         + FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL,"
                         + FilmContract.FilmEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, "
                         + FilmContract.FilmEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL, "
-                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " REAL NOT NULL"
+                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " REAL NOT NULL, "
+                        + FilmContract.FilmEntry.COLUMN_FAVORITE + " REAL"
                         + ");";
         db.execSQL(SQL_CREATE_FILM_TABLE);
 
@@ -62,6 +64,21 @@ public class FilmDBHelper extends SQLiteOpenHelper {
                         + FilmContract.FilmEntry.COLUMN_TRAILER_KEY + " TEXT NOT NULL"
                         + ");";
         db.execSQL(SQL_CREATE_TRAILER_TABLE);
+
+
+        final String SQL_CREATE_FAVORITES_TABLE =
+                "CREATE TABLE " + FAVORITES_TABLE_NAME + "("
+                        + FilmContract.FilmEntry._ID + " INT AUTO_INCREMENT,"
+                        + FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_OVERVIEW + " TEXT NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL,"
+                        + FilmContract.FilmEntry.COLUMN_POSTER_PATH + " TEXT, "
+                        + FilmContract.FilmEntry.COLUMN_BACKDROP_PATH + " TEXT NOT NULL, "
+                        + FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " REAL NOT NULL, "
+                        + FilmContract.FilmEntry.COLUMN_FAVORITE + " REAL"
+                        + ");";
+        db.execSQL(SQL_CREATE_FAVORITES_TABLE);
 
     }
 

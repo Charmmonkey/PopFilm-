@@ -9,9 +9,11 @@
 
     <string name="Pref_entry_popular">Popularity</string>
     <string name="Pref_entry_top_rated">Highest Rating</string>
+    <string name="Pref_entry_favorites">Favorites</string>
 
     <string name="Pref_values_popular">popular</string>
     <string name="Pref_values_top_rated">top_rated</string>
+    <string name="Pref_values_favorites">favorites</string>
 
 
 </resources>

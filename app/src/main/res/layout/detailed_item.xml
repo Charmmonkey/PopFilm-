@@ -8,23 +8,45 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/detailed_title"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:textSize="20sp" />
+            android:layout_height="wrap_content">
 
+            <ImageView
+                android:id="@+id/detailed_backdrop_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
 
-        <ImageView
-            android:id="@+id/detailed_backdrop_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:padding="8dp"
-            android:scaleType="fitCenter" />
+            <TextView
+                android:id="@+id/detailed_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorPrimary"
+                android:fontFamily="sans-serif"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/detailed_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:fontFamily="sans-serif"
+                android:padding="8dp" />
+
+            <ImageView
+                android:id="@+id/favorite_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/favorite"
+                />
+
+        </RelativeLayout>
 
 
         <TextView
@@ -34,12 +56,6 @@
             android:fontFamily="sans-serif"
             android:padding="8dp" />
 
-        <TextView
-            android:id="@+id/detailed_release_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:padding="8dp" />
 
         <TextView
             android:id="@+id/detailed_vote_average"
@@ -48,25 +64,16 @@
             android:fontFamily="sans-serif"
             android:padding="8dp" />
 
-        <TextView
-            android:id="@+id/review_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/review_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/trailer_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
 
-        <TextView
-            android:id="@+id/trailer_key"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/review_recycler"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/trailer_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
 
     </LinearLayout>
 </ScrollView>

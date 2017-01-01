@@ -15,6 +15,8 @@ import android.util.Log;
 
 public class SortActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String LOG_TAG = SortActivity.class.getSimpleName();
+    public static boolean preferenceChanged;
+    public static boolean appFreshStart = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,7 @@ public class SortActivity extends PreferenceActivity implements SharedPreference
             Preference sortPref = findPreference(key);
             ListPreference listPref = (ListPreference) sortPref;
             sortPref.setSummary(listPref.getEntry());
+            preferenceChanged = true;
         }
 
 
