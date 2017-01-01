@@ -1,9 +1,11 @@
 package com.example.android.popfilms;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.widget.TextView;
 
 import com.example.android.popfilms.data.FilmContract;
 
@@ -18,6 +20,17 @@ import com.example.android.popfilms.data.FilmContract;
 
 public class Utility {
 
+    //// YOUTUBE SECTION ////
+    public static Uri buildYouTubeWebUri(String videoKey){
+        Uri uri = Uri.parse("https://www.youtube.com/watch?v=" + videoKey);
+        return uri;
+    }
+    public static Uri buildYouTubeAppUri(String videoKey){
+        Uri uri = Uri.parse("vnd.youtube:" + videoKey);
+        return uri;
+    }
+
+
     //// PICASSO SECTION ////
     public static final Uri BASE_POSTER_URI = Uri.parse("http://image.tmdb.org/t/p");
     // Size of poster
@@ -30,6 +43,11 @@ public class Utility {
                 // Since posterPath starts with "/" use encoded path to prevent encoding into "%2F"
                         appendEncodedPath(posterPath).
                         build();
+        return uri;
+    }
+
+    public static Uri buildThumbnailUri(String thumbnailKey) {
+        Uri uri = Uri.parse("http://img.youtube.com/vi/" + thumbnailKey + "/hqdefault.jpg");
         return uri;
     }
 
@@ -86,7 +104,19 @@ public class Utility {
             FilmContract.FilmEntry.COLUMN_SPECIFIC_ID
     };
 
-    public static final String[] ENTRY_COLUMN = {FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
+    public static final String[] FAVORITES_COLUMN = {
+            FilmContract.FilmEntry.FAVORITES_TABLE_NAME + "." + FilmContract.FilmEntry._ID,
+            FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
+            FilmContract.FilmEntry.COLUMN_OVERVIEW,
+            FilmContract.FilmEntry.COLUMN_POSTER_PATH,
+            FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
+            FilmContract.FilmEntry.COLUMN_VOTE_AVERAGE,
+            FilmContract.FilmEntry.COLUMN_BACKDROP_PATH,
+            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID
+    };
+
+    public static final String[] ENTRY_COLUMN = {
+            FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE,
             FilmContract.FilmEntry.COLUMN_OVERVIEW,
             FilmContract.FilmEntry.COLUMN_POSTER_PATH,
             FilmContract.FilmEntry.COLUMN_RELEASE_DATE,
@@ -128,5 +158,7 @@ public class Utility {
     public static String getSortPreferenceKey(Context context) {
         return context.getString(R.string.Pref_sort_key);
     }
+
+
 
 }

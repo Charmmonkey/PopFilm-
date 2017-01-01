@@ -26,16 +26,19 @@ public class FilmContract {
 
     // Path to our movie database
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_FAVORITES = "favorites";
 
     public static final class FilmEntry implements BaseColumns {
 
         // Table Uris
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
+        public static final Uri FAVORITES_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
 
         // Table nameS
         public static final String FILM_TABLE_NAME = "film";
         public static final String REVIEW_TABLE_NAME ="review";
         public static final String TRAILER_TABLE_NAME = "trailer";
+        public static final String FAVORITES_TABLE_NAME = "favorites";
 
 
         // Film Table Columns
@@ -47,6 +50,7 @@ public class FilmContract {
         public static final String COLUMN_ORIGINAL_TITLE = "original_title";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_SPECIFIC_ID = "id";
+        public static final String COLUMN_FAVORITE = "favorite";
 
         // Review Table Columns
         public static final String COLUMN_REVIEW_AUTHOR = "author";
@@ -74,6 +78,10 @@ public class FilmContract {
 
         public static Uri buildFilmUriWithId(String id){
             return CONTENT_URI.buildUpon().appendPath(id).build();
+        }
+
+        public static Uri buildFavoritesUriWithId(String id){
+            return FAVORITES_URI.buildUpon().appendPath(id).build();
         }
 
         public static Uri buildReviewContentUriWithId(String id){

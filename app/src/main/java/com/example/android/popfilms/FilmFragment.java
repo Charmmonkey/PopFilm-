@@ -26,10 +26,14 @@ import com.example.android.popfilms.data.FilmContract;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FilmFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class FilmFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static PosterAdapter mPosterAdapter;
     private static final int FILM_LOADER = 0;
     private String LOG_TAG = getClass().getSimpleName();
+    private CursorLoader cursorLoader;
+    private String[] isFavorited = {"1"};
+    private Bundle mSavedInstanceState;
+
     public FilmFragment() {
         // Required empty public constructor
     }
@@ -38,16 +42,38 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
         setHasOptionsMenu(true);
-        getLoaderManager().initLoader(FILM_LOADER,savedInstanceState,this);
+
+        getLoaderManager().initLoader(FILM_LOADER, savedInstanceState, this);
+
     }
 
     // Implement Loader to query in the background and not have it tied to the UI lifecycle
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    Log.v(LOG_TAG, " onCreateLoader");
+        if(Utility.getSortingPreference(getContext()).equals("favorites")){
+            Log.v(LOG_TAG, "CursorLoader = favorites");
+            cursorLoader = new CursorLoader(getContext(),
+                    FilmContract.FilmEntry.FAVORITES_URI,
+                    Utility.FAVORITES_COLUMN,
+                    null,
+                    null,
+                    null);
 
-        CursorLoader loader = new CursorLoader(getContext(),FilmContract.FilmEntry.CONTENT_URI, Utility.FILM_COLUMN, null, null, null);
-        return loader;
+        }else{
+            Log.v(LOG_TAG, "Else cursorloader triggered");
+            cursorLoader = new CursorLoader(getContext(),
+                    FilmContract.FilmEntry.CONTENT_URI,
+                    Utility.FILM_COLUMN,
+                    null,
+                    null,
+                    null);
+
+        }
+
+        return cursorLoader;
     }
 
     @Override
@@ -67,7 +93,19 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "onStart");
-        updateFetcher();
+        Log.v(LOG_TAG, Boolean.toString(SortActivity.appFreshStart));
+        Log.v(LOG_TAG, Boolean.toString(SortActivity.preferenceChanged));
+        Log.v(LOG_TAG, Utility.getSortingPreference(getContext()));
+
+        if (!Utility.getSortingPreference(getContext()).equals("favorites")) {
+            Log.v(LOG_TAG, "first if triggered");
+            updateFetcher();
+            SortActivity.preferenceChanged = false;
+            getLoaderManager().restartLoader(FILM_LOADER,mSavedInstanceState,this);
+
+        }else if(Utility.getSortingPreference(getContext()).equals("favorites")){
+            getLoaderManager().restartLoader(FILM_LOADER,mSavedInstanceState,this);
+        }
     }
 
 
@@ -79,7 +117,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
         // Create and bind ArrayAdapter to GridView
 //        ArrayAdapter mArrayAdapter = new ArrayAdapter(this.getActivity(), R.layout.grid_item, words);
         // Pass in null cursor because query hasn't been made yet. We'll swap it out later after loader finishes query.
-        mPosterAdapter= new PosterAdapter(this.getContext(),null,0);
+        mPosterAdapter = new PosterAdapter(this.getContext(), null, 0);
 //        Log.v(LOG_TAG, "onCreateView" + posterUriString.toString());
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         GridView gridView = (GridView) rootView.findViewById(R.id.grid_view_id);
@@ -94,9 +132,9 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
                 // use CursorAdapter.
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 String itemMovieWithID = cursor.getString(Utility.COL_SPECIFIC_ID + 1);
-                Intent detailedFilm = new Intent(getContext(),DetailedFilmView.class);
+                Intent detailedFilm = new Intent(getContext(), DetailedFilmView.class);
                 // Pass the movie title Uri in the intent
-                Log.v(LOG_TAG,FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID).toString());
+                Log.v(LOG_TAG, FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID).toString());
                 detailedFilm.setData(FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID));
                 startActivity(detailedFilm);
             }
@@ -110,7 +148,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onResume();
         Log.v(LOG_TAG, " onResume ");
 
-        updateFetcher();
+
         CharSequence toastText = Utility.getSortingPreference(getContext());
         Toast.makeText(getContext(), "Sorted By: " + toastText, Toast.LENGTH_SHORT).show();
     }
@@ -118,22 +156,23 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.sort,menu);
+        inflater.inflate(R.menu.sort, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_sort:
-                Intent intent = new Intent(getActivity(),SortActivity.class);
+                Intent intent = new Intent(getActivity(), SortActivity.class);
                 startActivity(intent);
                 return true;
-        default:
-            return super.onOptionsItemSelected(item);}
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
-    private void updateFetcher(){
-        VolleyFetcher.volleyFetcher(Utility.buildFilmListUri(getContext()).toString(),Utility.ENTRY_COLUMN,getContext());
+    private void updateFetcher() {
+        VolleyFetcher.volleyFetcher(Utility.buildFilmListUri(getContext()).toString(), Utility.ENTRY_COLUMN, getContext());
     }
 
 }
