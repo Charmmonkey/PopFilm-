@@ -21,12 +21,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.Volley;
 import com.example.android.popfilms.data.FilmContract;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by jerye on 12/14/2016.
@@ -58,7 +60,7 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
     private RecyclerView reviewRecyclerView;
     private RecyclerView.Adapter reviewClickableRecyclerAdapter;
 
-    private boolean isFavorited = false;
+    private int favoritesMarker = 0;
 
     private Uri filmDetailContentUri;
     private Uri filmFavoritesContentUri;
@@ -66,26 +68,35 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
     private Uri filmReviewContentUri;
     private Uri filmTrailerContentUri;
 
-    private ContentValues favoriteTrue = new ContentValues(1);
-    private ContentValues favoriteFalse = new ContentValues(1);
-
     private ContentValues favoritesValues = new ContentValues();
+
+    private String[] detailedFilmIdArray;
 
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.v(LOG_TAG, "onStart");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.v(LOG_TAG, "onResume");
         // Fixes screen rotation crash
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(LOG_TAG, "onCreate");
+
+        filmDetailContentUri = getIntentData();
+        detailedFilmId = FilmContract.FilmEntry.getMovieIdFromUri(filmDetailContentUri);
+        Log.v(LOG_TAG, " detailedFilmId =: " + detailedFilmId);
+        filmFavoritesContentUri = FilmContract.FilmEntry.buildFavoritesUriWithId(detailedFilmId);
+        filmReviewContentUri = FilmContract.FilmEntry.buildReviewContentUriWithId(detailedFilmId);
+        filmTrailerContentUri = FilmContract.FilmEntry.buildTrailerContentUriWithId(detailedFilmId);
 
         // Initiate loader for the 3 queries
         getSupportLoaderManager().initLoader(GENERAL_LOADER_ID, savedInstanceState, this);
@@ -105,8 +116,7 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
         mReviewLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         reviewRecyclerView.setLayoutManager(mReviewLayoutManager);
 
-        favoriteTrue.put(FilmContract.FilmEntry.COLUMN_FAVORITE, "1");
-        favoriteFalse.put(FilmContract.FilmEntry.COLUMN_FAVORITE, "0");
+
     }
 
 
@@ -114,18 +124,13 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.v(LOG_TAG, " Loader created");
-        filmDetailContentUri = getIntentData();
-        detailedFilmId = FilmContract.FilmEntry.getMovieIdFromUri(filmDetailContentUri);
-        filmFavoritesContentUri = FilmContract.FilmEntry.buildFavoritesUriWithId(detailedFilmId);
-        filmReviewContentUri = FilmContract.FilmEntry.buildReviewContentUriWithId(detailedFilmId);
-        filmTrailerContentUri = FilmContract.FilmEntry.buildTrailerContentUriWithId(detailedFilmId);
 
         switch (id) {
             case GENERAL_LOADER_ID:
                 if (Utility.getSortingPreference(mContext).equals("favorites")) {
-                   return new CursorLoader(DetailedFilmView.this, filmFavoritesContentUri, Utility.ENTRY_COLUMN, null, null, null);
+                    return new CursorLoader(DetailedFilmView.this, filmFavoritesContentUri, Utility.ENTRY_COLUMN, null, null, null);
                 } else {
-                   return new CursorLoader(DetailedFilmView.this, filmDetailContentUri, Utility.ENTRY_COLUMN, null, null, null);
+                    return new CursorLoader(DetailedFilmView.this, filmDetailContentUri, Utility.ENTRY_COLUMN, null, null, null);
                 }
             case REVIEW_LOADER_ID:
                 return new CursorLoader(DetailedFilmView.this, filmReviewContentUri, Utility.REVIEW_COLUMN, null, null, null);
@@ -156,6 +161,7 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     String detailedVoteAverage = cursor.getString(Utility.COL_VOTE_AVERAGE_ID);
                     String detailedPosterPath = cursor.getString(Utility.COL_POSTER_PATH_ID);
                     String detailedBackdropPath = cursor.getString(Utility.COL_BACKDROP_PATH_ID);
+//                    String detailedFavorites = cursor.getString(Utility.COL_FAVORITES_ID);
 
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE, detailedTitle);
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_RELEASE_DATE, detailedReleaseDate);
@@ -164,6 +170,7 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_POSTER_PATH, detailedPosterPath);
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_BACKDROP_PATH, detailedBackdropPath);
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_SPECIFIC_ID, detailedFilmId);
+                    favoritesValues.put(FilmContract.FilmEntry.COLUMN_FAVORITE, "1");
 
                     // Find the views associated with id
                     TextView titleView = (TextView) findViewById(R.id.detailed_title);
@@ -181,33 +188,48 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     releaseDateView.setText(detailedReleaseDate);
                     voteAverageView.setText("Rating: " + detailedVoteAverage + "/10");
 
+                    String[] detailedFilmIdArrayTemp = {detailedFilmId};
+                    detailedFilmIdArray = detailedFilmIdArrayTemp;
+                    Log.v(LOG_TAG, detailedFilmId.toString());
+                    Log.v(LOG_TAG, " Right before query bug");
+                    Log.v(LOG_TAG, detailedFilmIdArray.toString());
+                    Log.v(LOG_TAG, Arrays.toString(detailedFilmIdArray));
+                    final Cursor favoritesCursor = mContext.getContentResolver().query(FilmContract.FilmEntry.FAVORITES_URI,
+                            null,
+                            FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
+                            detailedFilmIdArray,
+                            null);
 
                     favoriteButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            String[] detailedFilmIdArray = {detailedFilmId};
-                            if (isFavorited == false) {
+                            if (!favoritesCursor.moveToFirst()) {
+                                if (favoritesMarker == 1) {
+                                    favoritesMarker = -1;
 
-                                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
-                                        FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ? ",
-                                        detailedFilmIdArray
-                                );
-                                mContext.getContentResolver().insert(FilmContract.FilmEntry.FAVORITES_URI, favoritesValues);
+                                    Toast.makeText(mContext, "Unfavorited", Toast.LENGTH_SHORT).show();
 
-                                isFavorited = true;
-
+                                } else {
+                                    favoritesMarker = 1;
+                                    Toast.makeText(mContext, "Favorited", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
+                                if (favoritesMarker == -1) {
+                                    favoritesMarker = 1;
+                                    Toast.makeText(mContext, "Favorited", Toast.LENGTH_SHORT).show();
 
-                                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
-                                        FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ? ",
-                                        detailedFilmIdArray
-                                );
-                                isFavorited = false;
+                                } else {
+                                    favoritesMarker = -1;
+                                    Toast.makeText(mContext, "Unfavorited", Toast.LENGTH_SHORT).show();
+                                }
+
                             }
 
                         }
                     });
+
                 }
+
                 break;
 
             case REVIEW_LOADER_ID:
@@ -243,6 +265,38 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     VolleyFetcher.volleyFetcher(Utility.buildFilmTrailerUriWithId(detailedFilmId, mContext).toString(), Utility.TRAILER_COLUMN, mContext);
                 }
                 break;
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.v(LOG_TAG, "onDestroy");
+
+        switch (favoritesMarker) {
+            // Unfavorited
+            case -1:
+                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
+                        FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
+                        detailedFilmIdArray);
+                break;
+
+            // No change
+            case 0:
+                break;
+
+            // Favorited
+            case 1:
+                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
+                        FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
+                        detailedFilmIdArray);
+
+                mContext.getContentResolver().insert(FilmContract.FilmEntry.FAVORITES_URI,
+                        favoritesValues);
+
+                break;
+
         }
     }
 
