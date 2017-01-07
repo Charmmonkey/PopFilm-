@@ -33,6 +33,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     private CursorLoader cursorLoader;
     private String[] isFavorited = {"1"};
     private Bundle mSavedInstanceState;
+    private Toast toast;
 
     public FilmFragment() {
         // Required empty public constructor
@@ -132,7 +133,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
                 // use CursorAdapter.
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 String itemMovieWithID = cursor.getString(Utility.COL_SPECIFIC_ID + 1);
-                Intent detailedFilm = new Intent(getContext(), DetailedFilmView.class);
+                Intent detailedFilm = new Intent(getContext(), DetailedFilmActivity.class);
                 // Pass the movie title Uri in the intent
                 Log.v(LOG_TAG, FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID).toString());
                 detailedFilm.setData(FilmContract.FilmEntry.buildFilmUriWithId(itemMovieWithID));
@@ -149,8 +150,24 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
         Log.v(LOG_TAG, " onResume ");
 
 
+
         CharSequence toastText = Utility.getSortingPreference(getContext());
-        Toast.makeText(getContext(), "Sorted By: " + toastText, Toast.LENGTH_SHORT).show();
+        toast = Toast.makeText(getContext(), "Sorted By: " + toastText, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        toast.cancel();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.v(LOG_TAG, "onDestroy ");
     }
 
     @Override

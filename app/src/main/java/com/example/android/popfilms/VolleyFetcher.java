@@ -67,7 +67,6 @@ public class VolleyFetcher {
                 }
         );
         // Add new request to the queue
-        Log.v(LOG_TAG, "VoilleyFetcher requested");
         Volley.newRequestQueue(context).add(jsonRequest);
     }
 

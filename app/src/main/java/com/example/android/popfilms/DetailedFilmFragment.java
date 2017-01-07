@@ -1,5 +1,6 @@
 package com.example.android.popfilms;
 
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,16 +8,18 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,14 +31,17 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 /**
- * Created by jerye on 12/14/2016.
+ * A simple {@link Fragment} subclass.
  */
+public class DetailedFilmFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-public class DetailedFilmView extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    public DetailedFilmFragment() {
+        // Required empty public constructor
+    }
+
 
     private static final String LOG_TAG = DetailedFilmView.class.getSimpleName();
-
-    private Context mContext = DetailedFilmView.this;
 
     private static final int GENERAL_LOADER_ID = 0;
     private static final int REVIEW_LOADER_ID = 1;
@@ -72,31 +78,9 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
     private Bundle mSavedInstanceState;
 
 
+    @Nullable
     @Override
-    protected void onStart() {
-        super.onStart();
-        ActionBar mActionBar = getSupportActionBar();
-
-        Drawable drawable = ContextCompat.getDrawable(mContext,R.drawable.background_translucent_down);
-        mActionBar.setBackgroundDrawable(drawable);
-        mActionBar.setDisplayShowTitleEnabled(false);
-        Log.v(LOG_TAG, "onStart");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.v(LOG_TAG, "onResume");
-        // Fixes screen rotation crash
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.v(LOG_TAG, "onCreate");
-
-        supportRequestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mSavedInstanceState = savedInstanceState;
 
         filmDetailContentUri = getIntentData();
@@ -107,25 +91,25 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
         filmTrailerContentUri = FilmContract.FilmEntry.buildTrailerContentUriWithId(detailedFilmId);
 
         // Initiate loader for the 3 queries
-        getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, savedInstanceState, this);
-        getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, savedInstanceState, this);
-        getSupportLoaderManager().initLoader(GENERAL_LOADER_ID, savedInstanceState, this);
+        getActivity().getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, savedInstanceState, this);
+        getActivity().getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, savedInstanceState, this);
+        getActivity().getSupportLoaderManager().initLoader(GENERAL_LOADER_ID, savedInstanceState, this);
 
-        setContentView(R.layout.detailed_item);
+        View rootView = inflater.inflate(R.layout.detailed_item, container, false);
 
 
-        trailerRecyclerView = (RecyclerView) findViewById(R.id.trailer_recycler);
+        trailerRecyclerView = (RecyclerView) rootView.findViewById(R.id.trailer_recycler);
         trailerRecyclerView.setHasFixedSize(true);
-        mTrailerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mTrailerLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         trailerRecyclerView.setLayoutManager(mTrailerLayoutManager);
         Log.v(LOG_TAG, "LayoutManager trailer set");
 
-        reviewRecyclerView = (RecyclerView) findViewById(R.id.review_recycler);
+        reviewRecyclerView = (RecyclerView) rootView.findViewById(R.id.review_recycler);
         reviewRecyclerView.setHasFixedSize(true);
-        mReviewLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mReviewLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         reviewRecyclerView.setLayoutManager(mReviewLayoutManager);
 
-
+        return rootView;
     }
 
 
@@ -136,15 +120,15 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
 
         switch (id) {
             case GENERAL_LOADER_ID:
-                if (Utility.getSortingPreference(mContext).equals("favorites")) {
-                    return new CursorLoader(DetailedFilmView.this, filmFavoritesContentUri, Utility.ENTRY_COLUMN, null, null, null);
+                if (Utility.getSortingPreference(getContext()).equals("favorites")) {
+                    return new CursorLoader(getContext(), filmFavoritesContentUri, Utility.ENTRY_COLUMN, null, null, null);
                 } else {
-                    return new CursorLoader(DetailedFilmView.this, filmDetailContentUri, Utility.ENTRY_COLUMN, null, null, null);
+                    return new CursorLoader(getContext(), filmDetailContentUri, Utility.ENTRY_COLUMN, null, null, null);
                 }
             case REVIEW_LOADER_ID:
-                return new CursorLoader(DetailedFilmView.this, filmReviewContentUri, Utility.REVIEW_COLUMN, null, null, null);
+                return new CursorLoader(getContext(), filmReviewContentUri, Utility.REVIEW_COLUMN, null, null, null);
             case TRAILER_LOADER_ID:
-                return new CursorLoader(DetailedFilmView.this, filmTrailerContentUri, Utility.TRAILER_COLUMN, null, null, null);
+                return new CursorLoader(getContext(), filmTrailerContentUri, Utility.TRAILER_COLUMN, null, null, null);
             default:
                 return null;
         }
@@ -182,36 +166,35 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_FAVORITE, "1");
 
                     // Find the views associated with id
-                    TextView titleView = (TextView) findViewById(R.id.detailed_title);
-                    TextView overviewView = (TextView) findViewById(R.id.detailed_overview);
-//                    TextView releaseDateView = (TextView) findViewById(R.id.detailed_release_date);
-                    TextView voteAverageView = (TextView) findViewById(R.id.detailed_vote_average);
-                    ImageView backdropImageView = (ImageView) findViewById(R.id.detailed_backdrop_image);
-                    final ImageView favoriteButton = (ImageView) findViewById(R.id.favorite_button);
+                    TextView titleView = (TextView) getView().findViewById(R.id.detailed_title);
+                    TextView overviewView = (TextView) getView().findViewById(R.id.detailed_overview);
+                    TextView voteAverageView = (TextView) getView().findViewById(R.id.detailed_vote_average);
+                    ImageView backdropImageView = (ImageView) getView().findViewById(R.id.detailed_backdrop_image);
+                    final ImageView favoriteButton = (ImageView) getView().findViewById(R.id.favorite_button);
 
 
                     // Set content to respective view
-                    Picasso.with(DetailedFilmView.this).load(Utility.buildPosterUri(detailedBackdropPath)).into(backdropImageView);
+                    Picasso.with(getContext()).load(Utility.buildPosterUri(detailedBackdropPath)).into(backdropImageView);
                     titleView.setText(detailedTitle);
                     overviewView.setText(detailedOverview);
 //                    releaseDateView.setText(detailedReleaseDate);
                     voteAverageView.setText(detailedVoteAverage);
 
-                    final Toast mToast = Toast.makeText(mContext, "", Toast.LENGTH_SHORT);
+                    final Toast mToast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
 
                     String[] detailedFilmIdArrayTemp = {detailedFilmId};
                     detailedFilmIdArray = detailedFilmIdArrayTemp;
 
-                    final Cursor favoritesCursor = mContext.getContentResolver().query(FilmContract.FilmEntry.FAVORITES_URI,
+                    final Cursor favoritesCursor = getContext().getContentResolver().query(FilmContract.FilmEntry.FAVORITES_URI,
                             null,
                             FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
                             detailedFilmIdArray,
                             null);
 
-                    if (!favoritesCursor.moveToFirst()){
+                    if (!favoritesCursor.moveToFirst()) {
                         favoriteButton.setImageResource(R.drawable.ic_favorite_border_white_36dp);
 
-                    }else{
+                    } else {
                         favoriteButton.setImageResource(R.drawable.ic_favorite_white_36dp);
 
                     }
@@ -221,7 +204,6 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                         @Override
                         public void onClick(View v) {
                             if (!favoritesCursor.moveToFirst()) {
-
 
 
                                 if (favoritesMarker == 1) {
@@ -276,12 +258,12 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                         reviewData.add(dataSet);
                     } while (cursor.moveToNext());
 
-                    reviewClickableRecyclerAdapter = new RecyclerAdapter(reviewData, REVIEW_ID, mContext);
+                    reviewClickableRecyclerAdapter = new RecyclerAdapter(reviewData, REVIEW_ID, getContext());
                     reviewRecyclerView.setAdapter(reviewClickableRecyclerAdapter);
 
 
                 } else {
-                    VolleyFetcher.volleyFetcher(Utility.buildFilmReviewUriWithId(detailedFilmId, mContext).toString(), Utility.REVIEW_COLUMN, mContext);
+                    VolleyFetcher.volleyFetcher(Utility.buildFilmReviewUriWithId(detailedFilmId, getContext()).toString(), Utility.REVIEW_COLUMN, getContext());
                 }
                 break;
 
@@ -295,12 +277,12 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
                     } while (cursor.moveToNext());
 
                     Log.v(LOG_TAG, "Ready to set adapter");
-                    trailerClickableRecyclerAdapter = new RecyclerAdapter(trailerData, TRAILER_ID, mContext);
+                    trailerClickableRecyclerAdapter = new RecyclerAdapter(trailerData, TRAILER_ID, getContext());
                     trailerRecyclerView.setAdapter(trailerClickableRecyclerAdapter);
 
 
                 } else {
-                    VolleyFetcher.volleyFetcher(Utility.buildFilmTrailerUriWithId(detailedFilmId, mContext).toString(), Utility.TRAILER_COLUMN, mContext);
+                    VolleyFetcher.volleyFetcher(Utility.buildFilmTrailerUriWithId(detailedFilmId, getContext()).toString(), Utility.TRAILER_COLUMN, getContext());
                     Log.v(LOG_TAG, "Called volley for trailer");
                 }
                 break;
@@ -309,14 +291,14 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         Log.v(LOG_TAG, "onDestroy");
 
         switch (favoritesMarker) {
             // Unfavorited
             case -1:
-                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
+                getContext().getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
                         FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
                         detailedFilmIdArray);
                 break;
@@ -327,11 +309,11 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
 
             // Favorited
             case 1:
-                mContext.getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
+                getContext().getContentResolver().delete(FilmContract.FilmEntry.FAVORITES_URI,
                         FilmContract.FilmEntry.COLUMN_SPECIFIC_ID + " = ?",
                         detailedFilmIdArray);
 
-                mContext.getContentResolver().insert(FilmContract.FilmEntry.FAVORITES_URI,
+                getContext().getContentResolver().insert(FilmContract.FilmEntry.FAVORITES_URI,
                         favoritesValues);
 
                 break;
@@ -341,7 +323,7 @@ public class DetailedFilmView extends AppCompatActivity implements LoaderManager
 
     // Must retrieve intent data inside a override method or else will cause Nullpointerexception
     private Uri getIntentData() {
-        return getIntent().getData();
+        return getActivity().getIntent().getData();
     }
 
 

@@ -143,6 +143,7 @@ public class FilmProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
         queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        Log.v("FilmProvider", "Query update");
         return queryCursor;
     }
 
