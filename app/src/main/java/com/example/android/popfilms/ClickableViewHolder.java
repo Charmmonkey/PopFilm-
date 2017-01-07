@@ -4,7 +4,9 @@ import android.animation.ObjectAnimator;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +28,10 @@ public class ClickableViewHolder extends RecyclerView.ViewHolder implements View
     public TextView reviewAuthorTextView;
     public TextView reviewContentTextView;
     public ImageView trailerThumbnailImageView;
+    public ImageView reviewButton;
+    public ImageView reviewLeftButton;
+    public ImageView reviewRightButton;
+    public CardView reviewCardView;
 
     private final int REVIEW_ID = 100;
     private final int TRAILER_ID = 101;
@@ -45,10 +51,14 @@ public class ClickableViewHolder extends RecyclerView.ViewHolder implements View
 
         switch (mMatcher) {
             case REVIEW_ID:
+                reviewCardView = (CardView) itemView.findViewById(R.id.review_card_view);
                 reviewAuthorTextView = (TextView) itemView.findViewById(R.id.review_author);
                 reviewContentTextView = (TextView) itemView.findViewById(R.id.review_content);
+                reviewButton = (ImageView) itemView.findViewById(R.id.review_button);
+                reviewLeftButton = (ImageView) itemView.findViewById(R.id.review_left_button);
+                reviewRightButton = (ImageView) itemView.findViewById(R.id.review_right_button);
                 reviewContentTextView.setMaxLines(5);
-                reviewContentTextView.setOnClickListener(this);
+                reviewCardView.setOnClickListener(this);
                 break;
             case TRAILER_ID:
                 trailerNameTextView = (TextView) itemView.findViewById(R.id.trailer_name);
@@ -65,29 +75,23 @@ public class ClickableViewHolder extends RecyclerView.ViewHolder implements View
 
         switch (mMatcher) {
             case REVIEW_ID:
-                Log.v(LOG_TAG, Boolean.toString(isExpanded));
-                Log.v(LOG_TAG, " REVIEW_ID match");
                 reviewContentTextView.post(new Runnable() {
                                                @Override
                                                public void run() {
-                                                   Log.v(LOG_TAG, " REVIEW_ID runnable ");
                                                    if (isExpanded == false) {
-                                                       Log.v(LOG_TAG, " REVIEW_ID collapsed");
                                                        expandTextView(reviewContentTextView);
+                                                       reviewButton.setImageResource(R.drawable.ic_keyboard_arrow_up_white_24dp);
                                                        isExpanded = true;
-                                                       Log.v(LOG_TAG, Boolean.toString(isExpanded));
                                                    } else {
-                                                       Log.v(LOG_TAG, " REVIEW_ID expanded");
                                                        collapseTextView(reviewContentTextView, 5);
+                                                       reviewButton.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24dp);
+
                                                        isExpanded = false;
-                                                       Log.v(LOG_TAG, Boolean.toString(isExpanded));
-
                                                    }
-
-
                                                }
                                            }
                 );
+
                 break;
             case TRAILER_ID:
                 String videoKey = mDataset.get(getAdapterPosition())[1];

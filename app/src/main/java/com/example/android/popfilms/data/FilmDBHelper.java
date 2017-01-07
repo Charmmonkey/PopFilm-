@@ -25,7 +25,7 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     }
 
     // Name and version of database
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 8;
     static final String DATABASE_NAME = "film.db";
 
 
@@ -98,6 +98,8 @@ public class FilmDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.FILM_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.REVIEW_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.TRAILER_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + FilmContract.FilmEntry.FAVORITES_TABLE_NAME);
+
         onCreate(db);
     }
 }
