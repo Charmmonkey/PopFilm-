@@ -154,7 +154,6 @@ public class DetailedFilmFragment extends Fragment implements LoaderManager.Load
                     String detailedVoteAverage = cursor.getString(Utility.COL_VOTE_AVERAGE_ID);
                     String detailedPosterPath = cursor.getString(Utility.COL_POSTER_PATH_ID);
                     String detailedBackdropPath = cursor.getString(Utility.COL_BACKDROP_PATH_ID);
-//                    String detailedFavorites = cursor.getString(Utility.COL_FAVORITES_ID);
 
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_ORIGINAL_TITLE, detailedTitle);
                     favoritesValues.put(FilmContract.FilmEntry.COLUMN_RELEASE_DATE, detailedReleaseDate);

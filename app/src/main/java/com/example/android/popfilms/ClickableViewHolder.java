@@ -78,6 +78,8 @@ public class ClickableViewHolder extends RecyclerView.ViewHolder implements View
                 reviewContentTextView.post(new Runnable() {
                                                @Override
                                                public void run() {
+
+
                                                    if (isExpanded == false) {
                                                        expandTextView(reviewContentTextView);
                                                        reviewButton.setImageResource(R.drawable.ic_keyboard_arrow_up_white_24dp);
@@ -88,6 +90,8 @@ public class ClickableViewHolder extends RecyclerView.ViewHolder implements View
 
                                                        isExpanded = false;
                                                    }
+
+
                                                }
                                            }
                 );

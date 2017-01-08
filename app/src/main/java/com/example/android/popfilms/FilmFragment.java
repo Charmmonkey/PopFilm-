@@ -79,6 +79,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(LOG_TAG, "Loader Finished");
         mPosterAdapter.swapCursor(data);
 
     }
@@ -102,7 +103,10 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
             Log.v(LOG_TAG, "first if triggered");
             updateFetcher();
             SortActivity.preferenceChanged = false;
+
+            // Fail-safe because on preference change doesn't notify loader automatically
             getLoaderManager().restartLoader(FILM_LOADER,mSavedInstanceState,this);
+
 
         }else if(Utility.getSortingPreference(getContext()).equals("favorites")){
             getLoaderManager().restartLoader(FILM_LOADER,mSavedInstanceState,this);
@@ -189,6 +193,7 @@ public class FilmFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private void updateFetcher() {
+        Log.v(LOG_TAG, "updateFetcher called");
         VolleyFetcher.volleyFetcher(Utility.buildFilmListUri(getContext()).toString(), Utility.ENTRY_COLUMN, getContext());
     }
 

@@ -143,7 +143,7 @@ public class FilmProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
         queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
-        Log.v("FilmProvider", "Query update");
+        Log.v("FilmProvider", "Query updated");
         return queryCursor;
     }
 
@@ -158,6 +158,7 @@ public class FilmProvider extends ContentProvider {
         // _id of the inserted row. If it exists, create uri with _id, else throw SQLException
         switch (match) {
             case MOVIE:
+                Log.v("FilmProvider", "Inserted case 1 movie general");
                 long _id = db.insert(FilmContract.FilmEntry.FILM_TABLE_NAME, null, values);
                 if (_id > 0) {
                     insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
@@ -194,6 +195,7 @@ public class FilmProvider extends ContentProvider {
 
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        Log.v("FilmProvider", "Insert notify update");
 
         return insertUri;
     }
@@ -206,9 +208,12 @@ public class FilmProvider extends ContentProvider {
         // bulkInsert needs a Transaction because it's a longer process?
         switch (match) {
             case MOVIE:
+                Log.v("FilmProvider", "case 1 bulk insert general");
                 db.beginTransaction();
                 int count = 0;
                 try {
+                    Log.v("FilmProvider", "case 1 bulk insert general try");
+
                     // Iterate each value of ContentValues array
                     for (ContentValues singleValue : values) {
                         long _id = db.insert(FilmContract.FilmEntry.FILM_TABLE_NAME, null, singleValue);
@@ -220,6 +225,9 @@ public class FilmProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                     // Catch block already exists inside insert method
                 } finally {
+                    Log.v("FilmProvider", "case 1 bulk insert general finally");
+
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.endTransaction();
                 }
                 return count;

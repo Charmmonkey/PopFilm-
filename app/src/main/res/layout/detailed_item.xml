@@ -21,8 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                />
+                android:scaleType="fitCenter" />
 
 
             <LinearLayout
@@ -40,22 +39,21 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="4"
                     android:fontFamily="sans-serif"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="8dp"
-                    android:paddingTop="32dp"
+                    android:paddingBottom="@dimen/bottom_padding_medium"
+                    android:paddingLeft="@dimen/left_padding_medium"
+                    android:paddingRight="@dimen/right_padding_small"
+                    android:paddingTop="@dimen/top_padding_large"
                     android:textAppearance="?android:textAppearanceLarge"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp" />
+                    android:textColor="@android:color/white"/>
 
 
                 <ImageView
                     android:id="@+id/favorite_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
                     android:layout_gravity="bottom"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:paddingBottom="@dimen/bottom_padding_medium" />
 
             </LinearLayout>
 
@@ -63,56 +61,52 @@
         </RelativeLayout>
 
 
-        <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:paddingBottom="0dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingTop="16dp"-->
-        <!--android:text="overview"-->
-        <!--android:textAllCaps="true"-->
-        <!--android:textAppearance="?android:textAppearanceMedium" />-->
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="@dimen/general_padding_small">
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="4dp"
-                app:cardElevation="3dp"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="@dimen/card_elevation"
                 app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:weightSum="5">
+                    android:weightSum="1">
 
                     <TextView
                         android:id="@+id/detailed_overview"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="4"
+                        android:layout_weight="1"
                         android:fontFamily="sans-serif"
-                        android:padding="8dp" />
+                        android:padding="@dimen/general_padding_small" />
+
+                    <View
+                        android:layout_width="@dimen/divider_thickness"
+                        android:layout_height="wrap_content"
+                        android:background="@color/stroke">
+
+                    </View>
 
 
                     <TextView
                         android:id="@+id/detailed_vote_average"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
                         android:fontFamily="sans-serif"
                         android:gravity="center"
                         android:maxLines="1"
-                        android:padding="8dp"
-                        android:textSize="30sp"
+                        android:padding="@dimen/general_padding_small"
+                        android:textSize="@dimen/text_size_review_large"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -122,36 +116,13 @@
 
         </LinearLayout>
 
-
-        <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:paddingBottom="0dp"-->
-        <!--android:paddingLeft="16dp"-->
-
-        <!--android:paddingTop="16dp"-->
-        <!--android:text="trailers"-->
-        <!--android:textAllCaps="true" />-->
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/trailer_recycler"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp">
+            android:paddingLeft="@dimen/left_padding_small">
 
         </android.support.v7.widget.RecyclerView>
-
-
-        <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:paddingBottom="0dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingTop="16dp"-->
-
-        <!--android:text="reviews"-->
-        <!--android:textAllCaps="true" />-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/review_recycler"
