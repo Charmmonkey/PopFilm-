@@ -16,13 +16,14 @@
         android:scaleType="fitCenter" />
 
     <TextView
+        android:textSize="@dimen/text_size_small"
         android:id="@+id/release_date"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:textColor="@android:color/white"
         android:gravity="center_horizontal"
-        android:background="#8000"/>
+        android:background="@color/translucent_shade"/>
 </RelativeLayout>
 
 

@@ -4,12 +4,17 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import com.example.android.popfilms.Utility;
 
 /**
  * Created by jerye on 12/4/2016.
+ *
+ * FilmContract defines all the necessary variables and methods for any communication with the LOCAL CONTENT DATABASE:
+ * INCLUES:
+ * 1. SQLite database column names
+ * 2. Methods to build content URI for general, detailed, favorites, review, and trailer tables
+ *
  */
 
 public class FilmContract {

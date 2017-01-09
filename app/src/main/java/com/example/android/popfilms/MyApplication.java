@@ -7,6 +7,8 @@ import com.facebook.stetho.Stetho;
 
 /**
  * Created by jerye on 12/22/2016.
+ * For Stetho use
+ *
  */
 
 public class MyApplication extends Application {

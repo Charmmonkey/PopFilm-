@@ -10,4 +10,14 @@
         <item name="android:colorBackground">@color/background_material_light_grey</item>
     </style>
 
+    <style name="LandscapeMargins">
+        <item name="android:layout_marginRight">60dp</item>
+        <item name="android:layout_marginLeft">60dp</item>
+    </style>
+
+    <style name="LandscapePadding">
+        <item name="android:paddingLeft">60dp</item>
+        <item name="android:paddingRight">60dp</item>
+    </style>
+
 </resources>

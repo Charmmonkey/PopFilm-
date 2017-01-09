@@ -12,6 +12,8 @@ import static com.example.android.popfilms.data.FilmContract.FilmEntry.TRAILER_T
 
 /**
  * Created by jerye on 12/4/2016.
+ * FilmDBHelper is where the SQLite databases are created.
+ * Also clears all DB tables when version number is changed
  */
 
 // FilmDBHelper is used to help us create the database tables and manage its versions.
@@ -86,7 +88,6 @@ public class FilmDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         dropTable(db);
-
     }
 
     @Override

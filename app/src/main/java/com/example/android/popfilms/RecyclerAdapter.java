@@ -16,15 +16,18 @@ import java.util.ArrayList;
 
 /**
  * Created by jerye on 12/28/2016.
+ * RecyclerAdapter in conjunction with our custom ViewHolder class.
+ * RecyclerAdapter is responsible for populating items of RecyclerView
+ * Switch-case assigns between review or trailer
+ *
  */
 
 public class RecyclerAdapter extends RecyclerView.Adapter<ClickableViewHolder> {
+    // Empty bins, variables
     public ArrayList<String[]> mDataset;
     private int mMatcher;
     private Context mContext;
     private LinearLayout ll;
-    private CardView cv;
-    private FrameLayout fl;
     private final int REVIEW_ID = 100;
     private final int TRAILER_ID = 101;
     private ClickableViewHolder vh;
@@ -39,6 +42,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<ClickableViewHolder> {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public RecyclerAdapter(ArrayList<String[]> myDataset, int match, Context context) {
+        // Pass in necessary data
         mDataset = myDataset;
         mMatcher = match;
         mContext = context;
@@ -48,6 +52,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<ClickableViewHolder> {
     @Override
     public ClickableViewHolder onCreateViewHolder(ViewGroup parent,
                                                   int viewType) {
+        // Switch cases determines which recyclerView item is inflated
         switch (mMatcher) {
             case REVIEW_ID:
                 ll = (LinearLayout) LayoutInflater.from(parent.getContext())
@@ -68,17 +73,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<ClickableViewHolder> {
     public void onBindViewHolder(ClickableViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        Log.v("RecyclerAdapter", "View bound");
+
+        // Switch-case determines what content to set to what view
         switch (mMatcher) {
             case REVIEW_ID:
-                Log.v("RecyclerAdapter", "Review views bound");
                 reviewAuthorData = mDataset.get(position)[0];
                 reviewContentData = mDataset.get(position)[1];
 
                 holder.reviewAuthorTextView.setText(reviewAuthorData);
                 holder.reviewContentTextView.setText(reviewContentData);
 
-
+                // Add scrollable indicator depending on number of items in the RecyclerView
                 if (getItemCount() > 1) {
                     if (position == 0) { // First view with right arrow
                         holder.reviewRightButton.setImageResource(R.drawable.ic_chevron_right_white_24dp);
@@ -95,15 +100,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<ClickableViewHolder> {
                 }
                 break;
             case TRAILER_ID:
-                Log.v("RecyclerAdapter", "trailer views bound");
                 trailerThumbnailData = mDataset.get(position)[1];
                 Picasso.with(mContext).load(Utility.buildThumbnailUri(trailerThumbnailData)).into(holder.trailerThumbnailImageView);
                 holder.trailerNameTextView.setText(mDataset.get(position)[0]);
-
-                Log.v("RecyclerAdapter", Integer.toString(holder.trailerThumbnailImageView.getWidth()));
         }
-
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)

@@ -22,6 +22,8 @@ import java.util.Vector;
 
 /**
  * Created by jerye on 12/21/2016.
+ * VolleyFetcher is a custom class of Google Volley
+ * Takes advantage of background network calls to TMDB and inserts parsed JSON data to local database in onResponse
  */
 
 // VolleyFetcher is a modification of the original FetchMovieTask. It eliminates the use of AsyncTask and simplifies the code.
@@ -31,7 +33,6 @@ public class VolleyFetcher {
 
     // Google Volley handles HTTP requests and parses JSONObject for you. Wrap this whole thing with a method.
     public static void volleyFetcher(final String uriString, final String[] filmColumn, final Context context) {
-
         final String LOG_TAG = VolleyFetcher.class.getSimpleName();
 
         // Create the request
@@ -42,20 +43,17 @@ public class VolleyFetcher {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.v(LOG_TAG, " VolleyFetcher responsed");
                         try {
                             JSONArray jsonArray = response.getJSONArray("results");
 
                             // Prevents insertion if the film has no reviews.
                             // IMPORTANT:  This prevents an infinite re-query loop.
                             if (jsonArray.length() != 0) {
-                                Log.v(LOG_TAG, " VolleyFetcher insert");
                                 putJsonIntoSQLite(uriString, jsonArray, filmColumn, context);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -128,30 +126,22 @@ public class VolleyFetcher {
 
             // Uri pattern: <scheme>://<authority><absolute path>?<query>#<fragment>
             // Switch case handles different API calls and inserts into appropriate DB
-
             switch (uri.getLastPathSegment()) {
                 case "popular":
-                    Log.v(LOG_TAG, "case 1");
                     // Delete db entries before inserting
                     context.getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI, null, null);
                     context.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
                     break;
                 case "top_rated":
-                    Log.v(LOG_TAG, "case 2");
-
                     // Delete db entries before inserting
                     context.getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI, null, null);
                     context.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
                     break;
                 case Utility.PATH_REVIEW:
-                    Log.v(LOG_TAG, "case 3");
-
                     // Insert into Review data table. Uri will be handled by ContentProvider's UriMatcher
                     context.getContentResolver().bulkInsert(FilmContract.FilmEntry.buildReviewContentUriWithId(movieIdString), cvArray);
                     break;
                 case Utility.PATH_TRAILER:
-                    Log.v(LOG_TAG, "case 4");
-
                     // Insert into Trailer data table. Uri will be handled by ContentProvider's UriMatcher
                     context.getContentResolver().bulkInsert(FilmContract.FilmEntry.buildTrailerContentUriWithId(movieIdString), cvArray);
                     break;
@@ -160,8 +150,6 @@ public class VolleyFetcher {
 
         } catch (JSONException e) {
             e.printStackTrace();
-
         }
     }
-
 }

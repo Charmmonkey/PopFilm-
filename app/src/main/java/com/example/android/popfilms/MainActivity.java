@@ -3,6 +3,7 @@ package com.example.android.popfilms;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+// Hosts main fragment
 public class MainActivity extends AppCompatActivity {
 
     @Override

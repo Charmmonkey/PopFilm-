@@ -36,6 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/general_padding_small"
+                android:textSize="@dimen/text_size_medium"
                 android:textStyle="bold" />
 
             <View
@@ -47,6 +48,7 @@
                 android:id="@+id/review_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_small"
                 android:padding="@dimen/general_padding_small" />
 
             <ImageView

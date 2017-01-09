@@ -8,18 +8,15 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.CancellationSignal;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
-import com.example.android.popfilms.FilmFragment;
 import com.example.android.popfilms.Utility;
 
-import static android.R.attr.author;
-import static android.R.attr.id;
 
 /**
  * Created by jerye on 12/4/2016.
+ * FilmProvider is the gateway to the local database base.
+ * It is responsible for directing database queries, deletes, updates, and inserts to the correct DB table using a UriMatcher
+ * Also contains code to notify loader of database changes
  */
 
 public class FilmProvider extends ContentProvider {
@@ -63,6 +60,7 @@ public class FilmProvider extends ContentProvider {
         SQLiteDatabase filmDB = mOpenDBHelper.getReadableDatabase();
         int match = sUriMatcher.match(uri);
         Cursor queryCursor;
+
         switch (match) {
             case MOVIE: {
                 queryCursor = filmDB.query(
@@ -76,8 +74,7 @@ public class FilmProvider extends ContentProvider {
                 );
                 break;
             }
-            // Query for the detailed film page
-            //
+
             case MOVIE_WITH_TITLE: {
                 queryCursor = filmDB.query(
                         FilmContract.FilmEntry.FILM_TABLE_NAME,
@@ -90,9 +87,8 @@ public class FilmProvider extends ContentProvider {
                 );
                 break;
             }
-            // Query for review table
+
             case MOVIE_REVIEW:
-                Log.v("FilmProvider", "movie review query");
                 queryCursor = filmDB.query(
                         FilmContract.FilmEntry.REVIEW_TABLE_NAME,
                         projection,
@@ -103,8 +99,8 @@ public class FilmProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+
             case MOVIE_TRAILER:
-                Log.v("FilmProvider", "movie trailer query");
                 queryCursor = filmDB.query(
                         FilmContract.FilmEntry.TRAILER_TABLE_NAME,
                         projection,
@@ -143,7 +139,6 @@ public class FilmProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
         queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
-        Log.v("FilmProvider", "Query updated");
         return queryCursor;
     }
 
@@ -158,7 +153,6 @@ public class FilmProvider extends ContentProvider {
         // _id of the inserted row. If it exists, create uri with _id, else throw SQLException
         switch (match) {
             case MOVIE:
-                Log.v("FilmProvider", "Inserted case 1 movie general");
                 long _id = db.insert(FilmContract.FilmEntry.FILM_TABLE_NAME, null, values);
                 if (_id > 0) {
                     insertUri = FilmContract.FilmEntry.buildFilmUri(_id);
@@ -195,7 +189,6 @@ public class FilmProvider extends ContentProvider {
 
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        Log.v("FilmProvider", "Insert notify update");
 
         return insertUri;
     }
@@ -208,11 +201,9 @@ public class FilmProvider extends ContentProvider {
         // bulkInsert needs a Transaction because it's a longer process?
         switch (match) {
             case MOVIE:
-                Log.v("FilmProvider", "case 1 bulk insert general");
                 db.beginTransaction();
                 int count = 0;
                 try {
-                    Log.v("FilmProvider", "case 1 bulk insert general try");
 
                     // Iterate each value of ContentValues array
                     for (ContentValues singleValue : values) {
@@ -225,7 +216,6 @@ public class FilmProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                     // Catch block already exists inside insert method
                 } finally {
-                    Log.v("FilmProvider", "case 1 bulk insert general finally");
 
                     getContext().getContentResolver().notifyChange(uri, null);
                     db.endTransaction();
@@ -234,7 +224,6 @@ public class FilmProvider extends ContentProvider {
             case MOVIE_REVIEW:
                 db.beginTransaction();
                 count = 0;
-                Log.v("FilmProvider", "bulk insert");
                 try {
                     // Iterate each value of ContentValues array
                     for (ContentValues singleValue : values) {
@@ -312,8 +301,6 @@ public class FilmProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
 
         }
-
-
 
 
         if (deletedRow != 0) {

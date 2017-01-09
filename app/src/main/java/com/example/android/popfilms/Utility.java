@@ -1,11 +1,9 @@
 package com.example.android.popfilms;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.widget.TextView;
 
 import com.example.android.popfilms.data.FilmContract;
 

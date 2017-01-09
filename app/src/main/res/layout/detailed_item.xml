@@ -43,7 +43,7 @@
                     android:paddingLeft="@dimen/left_padding_medium"
                     android:paddingRight="@dimen/right_padding_small"
                     android:paddingTop="@dimen/top_padding_large"
-                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textSize="@dimen/text_size_large"
                     android:textColor="@android:color/white"/>
 
 
@@ -86,6 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
+                        android:textSize="@dimen/text_size_small"
                         android:fontFamily="sans-serif"
                         android:padding="@dimen/general_padding_small" />
 
@@ -106,7 +107,7 @@
                         android:gravity="center"
                         android:maxLines="1"
                         android:padding="@dimen/general_padding_small"
-                        android:textSize="@dimen/text_size_review_large"
+                        android:textSize="@dimen/text_size_large"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -120,14 +121,12 @@
             android:id="@+id/trailer_recycler"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/left_padding_small">
-
-        </android.support.v7.widget.RecyclerView>
+            android:paddingLeft="@dimen/left_padding_small"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/review_recycler"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 </ScrollView>
